@@ -1,0 +1,132 @@
+info:
+  contact:
+    email: admin@test.com
+    name: admin
+    url: http://test.com/support
+  description: API management Server by Fiber | Doc by Swagger.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: API by Fiber and Swagger
+  version: "1.0"
+paths:
+  /api/v1/accessible:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint is accessible without authentication.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Accessible
+          schema:
+            type: string
+      summary: Public access
+      tags:
+      - Public
+  /api/v1/healthcheck:
+    get:
+      consumes:
+      - '*/*'
+      description: get the status of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Show the status of server.
+      tags:
+      - CheckServer
+  /api/v1/helloworld:
+    get:
+      consumes:
+      - '*/*'
+      description: get Hello World of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Hello world!!
+      summary: Show the HelloWorld to server.
+      tags:
+      - Test
+  /api/v1/login:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Authorization of server.
+      parameters:
+      - description: Username
+        in: formData
+        name: user
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: pass
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Auth to server.
+      tags:
+      - Authentication
+  /api/v1/restricted:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint requires a valid JWT token.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Welcome <name>
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Restricted access
+      tags:
+      - Protected
+  /api/v1/test:
+    get:
+      consumes:
+      - '*/*'
+      description: get test of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: test
+      summary: Show the test to server.
+      tags:
+      - Test
+schemes:
+- https
+- http
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
