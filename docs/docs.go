@@ -25,6 +25,11 @@ const docTemplate = `{
     "paths": {
         "/api/v1/helloworld": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "get Hello World of server.",
                 "consumes": [
                     "*/*"
@@ -158,18 +163,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "password": {
-                    "type": "string",
-                    "example": "123456"
+                    "type": "string"
                 },
                 "username": {
-                    "type": "string",
-                    "example": "admin"
+                    "type": "string"
                 }
             }
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

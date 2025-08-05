@@ -11,6 +11,7 @@ import (
 //	@Tags			Test
 //	@Accept			*/*
 //	@Produce		json
+//	@Security		BearerAuth
 //	@Success		200	"test"
 //	@Router			/api/v1/test [get]
 func TestController(c *fiber.Ctx) error {

@@ -12,6 +12,7 @@ import (
 //	@Accept			*/*
 //	@Produce		json
 //	@Success		200	"Hello world!!"
+//	@Security		BearerAuth
 //	@Router			/api/v1/helloworld [get]
 func HellowWorldController(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "Hello world!!"})

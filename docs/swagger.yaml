@@ -2,10 +2,8 @@ definitions:
   controller.User:
     properties:
       password:
-        example: "123456"
         type: string
       username:
-        example: admin
         type: string
     type: object
 info:
@@ -30,6 +28,8 @@ paths:
       responses:
         "200":
           description: Hello world!!
+      security:
+      - BearerAuth: []
       summary: Show the HelloWorld to server.
       tags:
       - Test
@@ -105,7 +105,8 @@ paths:
       tags:
       - Test
 securityDefinitions:
-  ApiKeyAuth:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
     in: header
     name: Authorization
     type: apiKey
