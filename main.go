@@ -1,14 +1,14 @@
 package main
 
 import (
-	"log"
-
 	"go-fiber/app/routes"
 	_ "go-fiber/docs"
+	"log"
 
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/joho/godotenv"
 )
 
 //	@title			API by Fiber and Swagger
@@ -42,6 +42,12 @@ func main() {
 	routes.HelloWorld(v1)
 	routes.Test(v1)
 
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+	// log.Println(os.Getenv("TEST_DATA"))
+
+	log.Println("Starting server on :3000")
 	if err := app.Listen(":3000"); err != nil {
 		log.Fatal(err)
 	}
