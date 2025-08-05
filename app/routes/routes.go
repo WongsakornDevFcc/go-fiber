@@ -2,21 +2,22 @@ package routes
 
 import (
 	"go-fiber/app/controller"
+	"go-fiber/app/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func LoginRoute(router fiber.Router) {
-	router.Get("/login", controller.LoginController)
+	router.Post("/login", controller.LoginController)
 }
-func RegisterRoute(router fiber.Router) {
-	router.Get("/healthcheck", controller.HealthCheckController)
+func ProtectedHandler(router fiber.Router) {
+	router.Get("/protected", controller.ProtectedHandler)
 }
 
 func HelloWorld(router fiber.Router) {
-	router.Get("/helloworld", controller.HellowWorldController)
+	router.Get("/helloworld", middleware.JWTMiddleware, controller.HellowWorldController)
 }
 
 func Test(router fiber.Router) {
-	router.Get("/test", controller.TestController)
+	router.Get("/test", middleware.JWTMiddleware, controller.TestController)
 }

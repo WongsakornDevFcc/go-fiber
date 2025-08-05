@@ -1,3 +1,13 @@
+definitions:
+  controller.User:
+    properties:
+      password:
+        example: "123456"
+        type: string
+      username:
+        example: admin
+        type: string
+    type: object
 info:
   contact:
     email: admin@test.com
@@ -10,34 +20,6 @@ info:
   title: API by Fiber and Swagger
   version: "1.0"
 paths:
-  /api/v1/accessible:
-    get:
-      consumes:
-      - application/json
-      description: This endpoint is accessible without authentication.
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: Accessible
-          schema:
-            type: string
-      summary: Public access
-      tags:
-      - Public
-  /api/v1/healthcheck:
-    get:
-      consumes:
-      - '*/*'
-      description: get the status of server.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-      summary: Show the status of server.
-      tags:
-      - CheckServer
   /api/v1/helloworld:
     get:
       consumes:
@@ -54,49 +36,50 @@ paths:
   /api/v1/login:
     post:
       consumes:
-      - application/x-www-form-urlencoded
-      description: Authorization of server.
+      - application/json
+      description: Authenticates a user and returns a JWT token if credentials are
+        valid.
       parameters:
-      - description: Username
-        in: formData
+      - description: User credentials
+        in: body
         name: user
         required: true
-        type: string
-      - description: Password
-        in: formData
-        name: pass
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/controller.User'
       produces:
       - application/json
       responses:
         "200":
-          description: token
+          description: JWT token
           schema:
             additionalProperties:
               type: string
             type: object
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
         "401":
-          description: Unauthorized
+          description: Invalid credentials
           schema:
             type: string
         "500":
-          description: Internal Server Error
+          description: No username found
           schema:
             type: string
-      summary: Auth to server.
+      summary: User login
       tags:
-      - Authentication
-  /api/v1/restricted:
+      - auth
+  /api/v1/protected:
     get:
       consumes:
       - application/json
-      description: This endpoint requires a valid JWT token.
+      description: This route is protected and requires a valid JWT token.
       produces:
       - text/plain
       responses:
         "200":
-          description: Welcome <name>
+          description: Welcome to the protected area
           schema:
             type: string
         "401":
@@ -105,7 +88,7 @@ paths:
             type: string
       security:
       - ApiKeyAuth: []
-      summary: Restricted access
+      summary: Protected route
       tags:
       - Protected
   /api/v1/test:
@@ -121,9 +104,6 @@ paths:
       summary: Show the test to server.
       tags:
       - Test
-schemes:
-- https
-- http
 securityDefinitions:
   ApiKeyAuth:
     in: header

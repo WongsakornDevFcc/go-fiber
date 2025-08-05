@@ -1,8 +1,4 @@
 {
-    "schemes": [
-        "https",
-        "http"
-    ],
     "swagger": "2.0",
     "info": {
         "description": "API management Server by Fiber | Doc by Swagger.",
@@ -19,49 +15,6 @@
         "version": "1.0"
     },
     "paths": {
-        "/api/v1/accessible": {
-            "get": {
-                "description": "This endpoint is accessible without authentication.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "Public"
-                ],
-                "summary": "Public access",
-                "responses": {
-                    "200": {
-                        "description": "Accessible",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/healthcheck": {
-            "get": {
-                "description": "get the status of server.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CheckServer"
-                ],
-                "summary": "Show the status of server.",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
         "/api/v1/helloworld": {
             "get": {
                 "description": "get Hello World of server.",
@@ -84,36 +37,31 @@
         },
         "/api/v1/login": {
             "post": {
-                "description": "Authorization of server.",
+                "description": "Authenticates a user and returns a JWT token if credentials are valid.",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Authentication"
+                    "auth"
                 ],
-                "summary": "Auth to server.",
+                "summary": "User login",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Username",
+                        "description": "User credentials",
                         "name": "user",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Password",
-                        "name": "pass",
-                        "in": "formData",
-                        "required": true
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.User"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "token",
+                        "description": "JWT token",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -121,14 +69,20 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Invalid credentials",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "No username found",
                         "schema": {
                             "type": "string"
                         }
@@ -136,14 +90,14 @@
                 }
             }
         },
-        "/api/v1/restricted": {
+        "/api/v1/protected": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "This endpoint requires a valid JWT token.",
+                "description": "This route is protected and requires a valid JWT token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -153,10 +107,10 @@
                 "tags": [
                     "Protected"
                 ],
-                "summary": "Restricted access",
+                "summary": "Protected route",
                 "responses": {
                     "200": {
-                        "description": "Welcome \u003cname\u003e",
+                        "description": "Welcome to the protected area",
                         "schema": {
                             "type": "string"
                         }
@@ -187,6 +141,21 @@
                     "200": {
                         "description": "test"
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller.User": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "admin"
                 }
             }
         }

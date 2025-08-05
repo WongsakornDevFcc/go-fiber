@@ -1,76 +1,80 @@
 package controller
 
 import (
-	"time"
+	"encoding/json"
+	"fmt"
+	"strings"
+
+	"go-fiber/app/utils"
 
 	"github.com/gofiber/fiber/v2"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
-// LoginController handles user authentication.
-//
-// @Summary      Auth to server.
-// @Description  Authorization of server.
-// @Tags         Authentication
-// @Accept       application/x-www-form-urlencoded
+type User struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+// LoginController handles user login requests.
+// @Summary      User login
+// @Description  Authenticates a user and returns a JWT token if credentials are valid.
+// @Tags         auth
+// @Accept       json
 // @Produce      json
-// @Param        user  formData  string  true  "Username"
-// @Param        pass  formData  string  true  "Password"
-// @Success      200   {object}  map[string]string  "token"
-// @Failure      401   {string}  string  "Unauthorized"
-// @Failure      500   {string}  string  "Internal Server Error"
+// @Param        user  body      User  true  "User credentials"
+// @Success      200   {object}  map[string]string  "JWT token"
+// @Failure      400   {string}  string  "Invalid request body"
+// @Failure      401   {string}  string  "Invalid credentials"
+// @Failure      500   {string}  string  "No username found"
 // @Router       /api/v1/login [post]
 func LoginController(c *fiber.Ctx) error {
-	user := c.FormValue("user")
-	pass := c.FormValue("pass")
+	c.Set("Content-Type", "application/json")
+	fmt.Printf("The request body is %v\n", c.Body())
 
-	if user != "admin" || pass != "Vcxz1234!" {
-		return c.SendStatus(fiber.StatusUnauthorized)
+	var u User
+	if err := json.Unmarshal(c.Body(), &u); err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
 	}
+	fmt.Printf("The user request value %v", u)
 
-	claims := jwt.MapClaims{
-		"name":  "admin",
-		"admin": true,
-		"exp":   time.Now().Add(time.Hour * 72).Unix(),
+	if u.Username == "admin" && u.Password == "123456" {
+		tokenString, err := utils.CreateToken(u.Username)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString("No username found")
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": tokenString})
+	} else {
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid credentials")
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	t, err := token.SignedString([]byte("secret"))
-	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	return c.JSON(fiber.Map{"token": t})
 }
 
-// AccessibleController returns a public message.
-//
-// @Summary      Public access
-// @Description  This endpoint is accessible without authentication.
-// @Tags         Public
-// @Accept       json
-// @Produce      plain
-// @Success      200  {string}  string  "Accessible"
-// @Router       /api/v1/accessible [get]
-func AccessibleController(c *fiber.Ctx) error {
-	return c.SendString("Accessible")
-}
-
-// RestrictedController returns a message for authenticated users.
-//
-// @Summary      Restricted access
-// @Description  This endpoint requires a valid JWT token.
+// ProtectedHandler is a handler for protected routes.
+// It checks for a valid JWT token in the Authorization header.
+// @Summary      Protected route
+// @Description  This route is protected and requires a valid JWT token.
 // @Tags         Protected
 // @Accept       json
 // @Produce      plain
-// @Success      200  {string}  string  "Welcome <name>"
+// @Success      200  {string}  string  "Welcome to the protected area
 // @Failure      401  {string}  string  "Unauthorized"
 // @Security     ApiKeyAuth
-// @Router       /api/v1/restricted [get]
-func RestrictedController(c *fiber.Ctx) error {
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	return c.SendString("Welcome " + name)
+// @Router       /api/v1/protected [get]
+func ProtectedHandler(c *fiber.Ctx) error {
+	c.Set("Content-Type", "application/json")
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return c.Status(fiber.StatusUnauthorized).SendString("Missing authorization header")
+	}
+	const bearerPrefix = "Bearer "
+	if len(authHeader) <= len(bearerPrefix) || authHeader[:len(bearerPrefix)] != bearerPrefix {
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid authorization header format")
+	}
+	tokenString := authHeader[len(bearerPrefix):]
+	tokenString = strings.TrimSpace(tokenString)
+
+	err := utils.VerifyToken(tokenString)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid token")
+	}
+	return c.SendString("Welcome to the protected area")
 }
