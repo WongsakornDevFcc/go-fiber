@@ -8,7 +8,7 @@ import (
 )
 
 func LoginRoute(router fiber.Router) {
-	router.Post("/login", controller.LoginController)
+	router.Post("/authentication/signin", controller.LoginController)
 }
 func ProtectedHandler(router fiber.Router) {
 	router.Get("/protected", controller.ProtectedHandler)

@@ -27,7 +27,7 @@ type User struct {
 //	@Failure		400		{string}	string				"Invalid request body"
 //	@Failure		401		{string}	string				"Invalid credentials"
 //	@Failure		500		{string}	string				"No username found"
-//	@Router			/api/v1/login [post]
+//	@Router			/api/v1/authentication/signin [post]
 func LoginController(c *fiber.Ctx) error {
 	c.Set("Content-Type", "application/json")
 	fmt.Printf("The request body is %v\n", c.Body())
@@ -43,7 +43,10 @@ func LoginController(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("No username found")
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": tokenString})
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"tokens": fiber.Map{
+			"access": tokenString,
+			// "refresh": refreshToken, // Add if you have refresh tokens
+		}})
 	} else {
 		return c.Status(fiber.StatusUnauthorized).SendString("Invalid credentials")
 	}

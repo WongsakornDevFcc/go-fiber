@@ -23,32 +23,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/helloworld": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "get Hello World of server.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "Show the HelloWorld to server.",
-                "responses": {
-                    "200": {
-                        "description": "Hello world!!"
-                    }
-                }
-            }
-        },
-        "/api/v1/login": {
+        "/api/v1/authentication/signin": {
             "post": {
                 "description": "Authenticates a user and returns a JWT token if credentials are valid.",
                 "consumes": [
@@ -103,6 +78,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/helloworld": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "get Hello World of server.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "Show the HelloWorld to server.",
+                "responses": {
+                    "200": {
+                        "description": "Hello world!!"
+                    }
+                }
+            }
+        },
         "/api/v1/protected": {
             "get": {
                 "security": [
@@ -139,6 +139,11 @@ const docTemplate = `{
         },
         "/api/v1/test": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "get test of server.",
                 "consumes": [
                     "*/*"

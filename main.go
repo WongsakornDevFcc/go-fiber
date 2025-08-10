@@ -32,8 +32,12 @@ import (
 func main() {
 	app := fiber.New()
 
-	app.Use(cors.New())
-
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: `*`,
+		// AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
+		// AllowHeaders: "Origin,Content-Type,Accept,Authorization,locale",
+		// AllowCredentials: true,
+	}))
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 	app.Get("/swagger/*", swagger.HandlerDefault)
@@ -48,8 +52,8 @@ func main() {
 	}
 	// log.Println(os.Getenv("TEST_DATA"))
 
-	log.Println("Starting server on :3000")
-	if err := app.Listen(":3000"); err != nil {
+	log.Println("Starting server on :5001")
+	if err := app.Listen("[::]:5001"); err != nil {
 		log.Fatal(err)
 	}
 }

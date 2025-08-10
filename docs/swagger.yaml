@@ -18,22 +18,7 @@ info:
   title: API by Fiber and Swagger
   version: "1.0"
 paths:
-  /api/v1/helloworld:
-    get:
-      consumes:
-      - '*/*'
-      description: get Hello World of server.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Hello world!!
-      security:
-      - BearerAuth: []
-      summary: Show the HelloWorld to server.
-      tags:
-      - Test
-  /api/v1/login:
+  /api/v1/authentication/signin:
     post:
       consumes:
       - application/json
@@ -70,6 +55,21 @@ paths:
       summary: User login
       tags:
       - auth
+  /api/v1/helloworld:
+    get:
+      consumes:
+      - '*/*'
+      description: get Hello World of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Hello world!!
+      security:
+      - BearerAuth: []
+      summary: Show the HelloWorld to server.
+      tags:
+      - Test
   /api/v1/protected:
     get:
       consumes:
@@ -101,6 +101,8 @@ paths:
       responses:
         "200":
           description: test
+      security:
+      - BearerAuth: []
       summary: Show the test to server.
       tags:
       - Test

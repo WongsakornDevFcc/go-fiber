@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	secretKey = []byte("secret -key")
+	secretKey = []byte("sdfghjk456yushdwHGIHO2isf")
 )
 
 func CreateToken(username string) (string, error) {
