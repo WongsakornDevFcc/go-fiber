@@ -3,13 +3,14 @@ package utils
 // LoginService to provide user login with JWT token support
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
-	secretKey = []byte("sdfghjk456yushdwHGIHO2isf")
+	secretKey = []byte(os.Getenv("JWT_SECRET"))
 )
 
 func CreateToken(username string) (string, error) {
