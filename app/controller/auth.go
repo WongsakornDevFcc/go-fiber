@@ -43,8 +43,11 @@ func LoginController(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("No username found")
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"tokens": fiber.Map{
-			"access": tokenString,
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"tokens": tokenString,
+			"user": fiber.Map{
+				"username": u.Username,
+				"role": "admin",
 			// "refresh": refreshToken, // Add if you have refresh tokens
 		}})
 	} else {
