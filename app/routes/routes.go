@@ -15,6 +15,11 @@ func Test(router fiber.Router) {
 func LoginRoute(router fiber.Router) {
 	router.Post("/authentication/signin", controller.LoginController)
 }
+
+func RefreshToken(router fiber.Router) {
+	router.Post("/authentication/refresh", controller.RefreshTokenController)
+}
+
 func ProtectedHandler(router fiber.Router) {
 	router.Get("/protected", controller.ProtectedHandler)
 }

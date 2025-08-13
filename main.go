@@ -46,6 +46,7 @@ func main() {
 	routes.ProtectedHandler(v1)
 	routes.HelloWorld(v1)
 	routes.Test(v1)
+	routes.RefreshToken(v1)
 
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")

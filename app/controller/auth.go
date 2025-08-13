@@ -2,10 +2,8 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
-
 	"go-fiber/app/utils"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,6 +11,10 @@ import (
 type User struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
+}
+
+type TokenRequest struct {
+	Refresh string `json:"refresh"`
 }
 
 // LoginController handles user login requests.
@@ -30,28 +32,31 @@ type User struct {
 //	@Router			/api/v1/authentication/signin [post]
 func LoginController(c *fiber.Ctx) error {
 	c.Set("Content-Type", "application/json")
-	fmt.Printf("The request body is %v\n", c.Body())
 
 	var u User
 	if err := json.Unmarshal(c.Body(), &u); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
 	}
-	fmt.Printf("The user request value %v", u)
 
 	if u.Username == "admin" && u.Password == "123456" {
-		tokenString, err := utils.CreateToken(u.Username)
+		tokenString, err := utils.CreateToken(u.Username, "admin")
+		refreshTokenString, err := utils.CreateRefreshToken(u.Username, "admin")
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("No username found")
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"tokens": tokenString,
+			"tokens":  tokenString,
+			"refresh": refreshTokenString,
 			"user": fiber.Map{
 				"username": u.Username,
-				"role": "admin",
-			// "refresh": refreshToken, // Add if you have refresh tokens
-		}})
+				"role":     "admin",
+			}})
 	} else {
-		return c.Status(fiber.StatusUnauthorized).SendString("Invalid credentials")
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error":   "Unauthorized",
+			"message": "Authentication failed. Invalid or missing credentials.",
+			"status":  fiber.StatusUnauthorized,
+		})
 	}
 }
 
@@ -62,9 +67,10 @@ func LoginController(c *fiber.Ctx) error {
 //	@Description	This route is protected and requires a valid JWT token.
 //	@Tags			Protected
 //	@Accept			json
-//	@Produce		plain
-//	@Success		200	{string}	string	"Welcome to the protected area
-//	@Failure		401	{string}	string	"Unauthorized"
+//	@Produce		json
+//	@Params			token	body 				string	true	"JWT token"
+//	@Success		200		{string}	string	"Welcome to the protected area
+//	@Failure		401		{string}	string	"Unauthorized"
 //	@Security		ApiKeyAuth
 //	@Router			/api/v1/protected [get]
 func ProtectedHandler(c *fiber.Ctx) error {
@@ -85,4 +91,47 @@ func ProtectedHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).SendString("Invalid token")
 	}
 	return c.SendString("Welcome to the protected area")
+}
+
+// RefreshToken handles token refresh requests.
+//
+//	@Summary		Token refresh
+//	@Description	Refreshes a JWT token if the provided token is valid.
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			token	body		TokenRequest		true	"JWT token"
+//	@Success		200		{object}	map[string]string	"New JWT token"
+//	@Failure		400		{string}	string				"Invalid request body"
+//	@Failure		401		{string}	string				"Invalid token"
+//	@Failure		500		{string}	string				"Failed to refresh token"
+//	@Router			/api/v1/authentication/refresh [post]
+func RefreshTokenController(c *fiber.Ctx) error {
+	c.Set("Content-Type", "application/json")
+
+	var u TokenRequest
+	if err := json.Unmarshal(c.Body(), &u); err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
+	}
+
+	username, role, err := utils.VerifyRefreshToken(u.Refresh)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid refresh token")
+	}
+
+	newToken, err := utils.CreateToken(username, role)
+	newRefreshToken := u.Refresh
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to create new token")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"tokens":  newToken,
+		"refresh": newRefreshToken,
+		"user": fiber.Map{
+			"username": username,
+			"role":     role,
+		},
+	})
 }

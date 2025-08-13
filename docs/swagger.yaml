@@ -1,4 +1,9 @@
 definitions:
+  controller.TokenRequest:
+    properties:
+      refresh:
+        type: string
+    type: object
   controller.User:
     properties:
       password:
@@ -18,6 +23,42 @@ info:
   title: API by Fiber and Swagger
   version: "1.0"
 paths:
+  /api/v1/authentication/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refreshes a JWT token if the provided token is valid.
+      parameters:
+      - description: JWT token
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/controller.TokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New JWT token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Invalid token
+          schema:
+            type: string
+        "500":
+          description: Failed to refresh token
+          schema:
+            type: string
+      summary: Token refresh
+      tags:
+      - auth
   /api/v1/authentication/signin:
     post:
       consumes:
@@ -76,7 +117,7 @@ paths:
       - application/json
       description: This route is protected and requires a valid JWT token.
       produces:
-      - text/plain
+      - application/json
       responses:
         "200":
           description: Welcome to the protected area
