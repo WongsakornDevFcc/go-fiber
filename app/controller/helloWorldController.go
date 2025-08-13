@@ -15,6 +15,9 @@ import (
 //	@Security		BearerAuth
 //	@Router			/api/v1/helloworld [get]
 func HellowWorldController(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{"message": "Hello world!!"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Hello",
+		"content": "test",
+	})
 
 }
