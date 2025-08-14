@@ -5,28 +5,28 @@ networks:
     name: dev-networks
 
 services:
-  api:
+  apiserver:
     container_name: fiber-api
-    ports:
-      - 5001:5001
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
     volumes:
       - ./:/app
-    
-  mssql:
-    container_name: sql-server
-    image: mcr.microsoft.com/mssql/server:2022-latest
+
+  postgres:
+    container_name: postgres
+    image: postgres:15
     restart: always
     ports:
-      - 1433:1433
+      - "5432:5432"
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=123Password
-      - SA_USERNAME=sa
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
     volumes:
-      - my-volume:/var/opt/mssql
+      - my-volume:/var/lib/postgresql/data
 
 volumes:
   my-volume:

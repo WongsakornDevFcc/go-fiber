@@ -1,27 +1,30 @@
 package utils
 
-// LoginService to provide user login with JWT token support
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
-	secretKeyToken        = []byte(os.Getenv("JWT_SECRET"))
-	secretKeyRefreshToken = []byte(os.Getenv("JWT_REFRESH_SECRET"))
+	secretKey       = []byte(os.Getenv("JWT_SECRET_KEY"))
+	refreshKey      = []byte(os.Getenv("JWT_REFRESH_KEY"))
+	minutesCount, _ = strconv.Atoi(os.Getenv("JWT_SECRET_KEY_EXPIRE_MINUTES_COUNT"))
+	hourCount, _    = strconv.Atoi(os.Getenv("JWT_REFRESH_KEY_EXPIRE_HOURS_COUNT"))
 )
 
 func CreateToken(username string, role string) (string, error) {
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"username": username,
 			"role":     role,
-			"exp":      time.Now().Add(time.Second * 15).Unix(),
+			"exp":      time.Now().Add(time.Minute * time.Duration(minutesCount)).Unix(), //test for 15s
 		})
-	tokenString, err := token.SignedString(secretKeyToken)
+	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
 		return "", nil
 	}
@@ -29,13 +32,14 @@ func CreateToken(username string, role string) (string, error) {
 }
 
 func CreateRefreshToken(username string, role string) (string, error) {
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"username": username,
 			"role":     role,
-			"exp":      time.Now().Add(time.Hour * 24).Unix(),
+			"exp":      time.Now().Add(time.Hour * time.Duration(hourCount)).Unix(),
 		})
-	tokenString, err := token.SignedString(secretKeyRefreshToken)
+	tokenString, err := token.SignedString(refreshKey)
 	if err != nil {
 		return "", nil
 	}
@@ -44,7 +48,7 @@ func CreateRefreshToken(username string, role string) (string, error) {
 
 func VerifyToken(tokenString string) error {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return secretKeyToken, nil
+		return secretKey, nil
 	})
 	if err != nil {
 		return err
@@ -60,7 +64,7 @@ func VerifyRefreshToken(refreshTokenString string) (string, string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return "", fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return secretKeyRefreshToken, nil
+		return refreshKey, nil
 	})
 	if err != nil {
 		return "", "", err

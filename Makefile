@@ -1,3 +1,8 @@
+APP_NAME = apiserver
+BUILD_DIR = $(PWD)/app
+MIGRATIONS_FOLDER = $(PWD)/platform/migrations
+DATABASE_URL = postgres://postgres:password@localhost:5432/postgres?sslmode=disable
+
 build:
 	docker-compose up --build
 
@@ -7,8 +12,11 @@ rebuild:
 logs:
 	docker-compose logs -f
 
-migrate:
-	docker-compose exec api go run ./app/database/migrate.go
+migrate.up:
+	migrate -path $(MIGRATIONS_FOLDER) -database "$(DATABASE_URL)" up
 
-migrate-drop:
-	docker-compose exec api go run ./app/database/migrate.go drop
+migrate.down:
+	migrate -path $(MIGRATIONS_FOLDER) -database "$(DATABASE_URL)" down
+
+migrate.force:
+	migrate -path $(MIGRATIONS_FOLDER) -database "$(DATABASE_URL)" force $(version)

@@ -1,16 +1,15 @@
 package main
 
 import (
-	"go-fiber/app/database"
-	"go-fiber/app/routes"
 	_ "go-fiber/docs"
-	"log"
-	"os"
+	"go-fiber/middleware"
+	"go-fiber/pkg/configs"
+	"go-fiber/pkg/routes"
+	"go-fiber/pkg/utils"
 
-	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/joho/godotenv"
+
+	_ "github.com/joho/godotenv/autoload" // load .env file automatically
 )
 
 //	@title			API by Fiber and Swagger
@@ -32,36 +31,18 @@ import (
 //	@description				Type "Bearer" followed by a space and JWT token.
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
-	}
 
-	// Initialize database connection
-	database.Connect()
-	// database.Migrate()
+	config := configs.FiberConfig()
 
-	app := fiber.New()
+	app := fiber.New(config)
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: `*`,
-	}))
+	middleware.FiberMiddleware(app)
 
-	api := app.Group("/api")
-	v1 := api.Group("/v1")
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	routes.SwaggerRoute(app)
+	routes.PublicRoutes(app)
+	routes.PrivateRoutes(app)
+	routes.NotFoundRoute(app)
 
-	routes.LoginRoute(v1)
-	routes.ProtectedHandler(v1)
-	routes.HelloWorld(v1)
-	routes.Test(v1)
-	routes.RefreshToken(v1)
-	routes.UsersRoute(v1)
+	utils.StartServer(app)
 
-	port := os.Getenv("API_PORT")
-
-	log.Println("Starting server on port:", port)
-	if err := app.Listen(":" + port); err != nil {
-		log.Fatal(err)
-	}
 }

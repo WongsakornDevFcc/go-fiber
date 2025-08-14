@@ -9,6 +9,7 @@
 
 # Output of 'go build'
 *.out
+build/
 /tmp
 
 # Dependency directories (Go modules)
@@ -18,3 +19,9 @@ vendor/
 .idea/
 .vscode/
 *.swp
+
+# macOS
+**/.DS_Store
+
+# Environment variables
+# .env

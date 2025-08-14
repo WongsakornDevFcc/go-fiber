@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"go-fiber/app/utils"
+	"go-fiber/pkg/utils"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
