@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-fiber/app/database"
 	"go-fiber/app/routes"
 	_ "go-fiber/docs"
 	"log"
@@ -31,14 +32,21 @@ import (
 //	@description				Type "Bearer" followed by a space and JWT token.
 
 func main() {
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+
+	// Initialize database connection
+	database.Connect()
+	// database.Migrate()
+
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: `*`,
-		// AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
-		// AllowHeaders: "Origin,Content-Type,Accept,Authorization,locale",
-		// AllowCredentials: true,
 	}))
+
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 	app.Get("/swagger/*", swagger.HandlerDefault)
@@ -50,12 +58,10 @@ func main() {
 	routes.RefreshToken(v1)
 	routes.UsersRoute(v1)
 
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
-	}
+	port := os.Getenv("API_PORT")
 
-	log.Println("Starting server on :", os.Getenv("API_PORT"))
-	if err := app.Listen(":" + os.Getenv("API_PORT")); err != nil {
+	log.Println("Starting server on port:", port)
+	if err := app.Listen(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }
