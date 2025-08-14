@@ -18,6 +18,7 @@ func HellowWorldController(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Hello",
 		"content": "test",
+		"status":  fiber.StatusOK,
 	})
 
 }

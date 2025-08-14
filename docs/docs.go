@@ -209,7 +209,7 @@ const docTemplate = `{
                 "tags": [
                     "Test"
                 ],
-                "summary": "Show the test to server.",
+                "summary": "Show the test to server test.",
                 "responses": {
                     "200": {
                         "description": "test"

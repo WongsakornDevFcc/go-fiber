@@ -144,7 +144,7 @@ paths:
           description: test
       security:
       - BearerAuth: []
-      summary: Show the test to server.
+      summary: Show the test to server test.
       tags:
       - Test
   /api/v1/users:
