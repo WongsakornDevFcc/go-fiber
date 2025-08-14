@@ -216,6 +216,31 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "get Users list of server.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Show the Users list to server.",
+                "responses": {
+                    "200": {
+                        "description": "user list"
+                    }
+                }
+            }
         }
     },
     "definitions": {

@@ -16,5 +16,4 @@ import (
 //	@Router			/api/v1/test [get]
 func TestController(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "test"})
-
 }

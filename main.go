@@ -4,6 +4,7 @@ import (
 	"go-fiber/app/routes"
 	_ "go-fiber/docs"
 	"log"
+	"os"
 
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
@@ -47,14 +48,14 @@ func main() {
 	routes.HelloWorld(v1)
 	routes.Test(v1)
 	routes.RefreshToken(v1)
+	routes.UsersRoute(v1)
 
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
 	}
-	// log.Println(os.Getenv("TEST_DATA"))
 
-	log.Println("Starting server on :5001")
-	if err := app.Listen("[::]:5001"); err != nil {
+	log.Println("Starting server on :", os.Getenv("API_PORT"))
+	if err := app.Listen(":" + os.Getenv("API_PORT")); err != nil {
 		log.Fatal(err)
 	}
 }

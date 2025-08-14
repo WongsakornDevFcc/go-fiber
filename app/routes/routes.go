@@ -28,3 +28,7 @@ func ProtectedHandler(router fiber.Router) {
 func HelloWorld(router fiber.Router) {
 	router.Get("/helloworld", middleware.JWTMiddleware, controller.HellowWorldController)
 }
+
+func UsersRoute(router fiber.Router) {
+	router.Get("/users", middleware.JWTMiddleware, controller.UserController)
+}

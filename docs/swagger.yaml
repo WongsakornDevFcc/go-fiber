@@ -147,6 +147,21 @@ paths:
       summary: Show the test to server.
       tags:
       - Test
+  /api/v1/users:
+    get:
+      consumes:
+      - '*/*'
+      description: get Users list of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user list
+      security:
+      - BearerAuth: []
+      summary: Show the Users list to server.
+      tags:
+      - Users
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.
