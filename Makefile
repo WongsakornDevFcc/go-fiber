@@ -9,6 +9,9 @@ build:
 rebuild:
 	docker-compose down & docker-compose up --build
 
+remove-volume:
+	docker-compose down -v
+
 logs:
 	docker-compose logs -f
 
@@ -20,3 +23,9 @@ migrate.down:
 
 migrate.force:
 	migrate -path $(MIGRATIONS_FOLDER) -database "$(DATABASE_URL)" force $(version)
+
+migrate.cli :
+	export POSTGRESQL_URL='$(DATABASE_URL)'
+
+migrate.init :
+	migrate -path $(MIGRATIONS_FOLDER) -database "$(DATABASE_URL)" init
