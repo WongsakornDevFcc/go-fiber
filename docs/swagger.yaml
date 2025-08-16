@@ -4,12 +4,57 @@ definitions:
       refresh:
         type: string
     type: object
-  controller.User:
+  models.SignUp:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      password:
+        maxLength: 255
+        type: string
+      user_role:
+        maxLength: 25
+        type: string
+    required:
+    - email
+    - password
+    - user_role
+    type: object
+  models.Signin1:
     properties:
       password:
         type: string
       username:
         type: string
+    required:
+    - password
+    - username
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        maxLength: 255
+        type: string
+      id:
+        type: string
+      password_hash:
+        maxLength: 255
+        type: string
+      updated_at:
+        type: string
+      user_role:
+        maxLength: 25
+        type: string
+      user_status:
+        type: integer
+    required:
+    - email
+    - id
+    - password_hash
+    - user_role
+    - user_status
     type: object
 info:
   contact:
@@ -71,7 +116,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/controller.User'
+          $ref: '#/definitions/models.Signin1'
       produces:
       - application/json
       responses:
@@ -147,6 +192,28 @@ paths:
       summary: Show the test to server test.
       tags:
       - Test
+  /api/v1/user/sign/up:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user.
+      parameters:
+      - description: Sign Up Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: create a new user
+      tags:
+      - User
   /api/v1/users:
     get:
       consumes:

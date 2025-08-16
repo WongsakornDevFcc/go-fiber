@@ -2,16 +2,15 @@ package controller
 
 import (
 	"encoding/json"
+	"go-fiber/app/models"
 	"go-fiber/pkg/utils"
+	"go-fiber/platform/database"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
-
-type User struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
-}
 
 type TokenRequest struct {
 	Refresh string `json:"refresh"`
@@ -24,7 +23,7 @@ type TokenRequest struct {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		User				true	"User credentials"
+//	@Param			user	body		models.Signin1				true	"User credentials"
 //	@Success		200		{object}	map[string]string	"JWT token"
 //	@Failure		400		{string}	string				"Invalid request body"
 //	@Failure		401		{string}	string				"Invalid credentials"
@@ -33,14 +32,14 @@ type TokenRequest struct {
 func LoginController(c *fiber.Ctx) error {
 	c.Set("Content-Type", "application/json")
 
-	var u User
-	if err := json.Unmarshal(c.Body(), &u); err != nil {
+	var signIn = &models.Signin1{}
+	if err := json.Unmarshal(c.Body(), &signIn); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
 	}
 
-	if u.Username == "admin" && u.Password == "123456" {
-		tokenString, err := utils.CreateToken(u.Username, "admin")
-		refreshTokenString, err := utils.CreateRefreshToken(u.Username, "admin")
+	if signIn.Username == "admin" && signIn.Password == "123456" {
+		tokenString, err := utils.CreateToken(signIn.Username, "admin")
+		refreshTokenString, err := utils.CreateRefreshToken(signIn.Username, "admin")
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("No username found")
 		}
@@ -48,7 +47,7 @@ func LoginController(c *fiber.Ctx) error {
 			"tokens":  tokenString,
 			"refresh": refreshTokenString,
 			"user": fiber.Map{
-				"username": u.Username,
+				"username": signIn.Username,
 				"role":     "admin",
 			}})
 	} else {
@@ -68,7 +67,7 @@ func LoginController(c *fiber.Ctx) error {
 //	@Tags			Protected
 //	@Accept			json
 //	@Produce		json
-//	@Params			token	body 				string	true	"JWT token"
+//	@Params			token	body 								string	true	"JWT token"
 //	@Success		200		{string}	string	"Welcome to the protected area
 //	@Failure		401		{string}	string	"Unauthorized"
 //	@Security		ApiKeyAuth
@@ -133,5 +132,96 @@ func RefreshTokenController(c *fiber.Ctx) error {
 			"username": username,
 			"role":     role,
 		},
+	})
+}
+
+// UserSignUp method to create a new user.
+//
+//	@Description	Create a new user.
+//	@Summary		create a new user
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		models.SignUp	true	"Sign Up Body"
+//	@Success		200		{object}	models.User
+//	@Router			/api/v1/user/sign/up [post]
+func UserSignUp(c *fiber.Ctx) error {
+	signUp := &models.SignUp{}
+
+	if err := c.BodyParser(signUp); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	validate := utils.NewValidator()
+
+	// Validate sign up fields.
+	if err := validate.Struct(signUp); err != nil {
+		// Return, if some fields are not valid.
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   utils.ValidatorErrors(err),
+		})
+	}
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Checking role from sign up data.
+	role, err := utils.VerifyRole(signUp.UserRole)
+	if err != nil {
+		// Return status 400 and error message.
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Create a new user struct.
+	user := &models.User{}
+
+	// Set initialized default data for user:
+	user.ID = uuid.New()
+	user.CreatedAt = time.Now()
+	user.Email = signUp.Email
+	user.PasswordHash = utils.GeneratePassword(signUp.Password)
+	user.UserStatus = 1 // 0 == blocked, 1 == active
+	user.UserRole = role
+
+	// Validate user fields.
+	if err := validate.Struct(user); err != nil {
+		// Return, if some fields are not valid.
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   utils.ValidatorErrors(err),
+		})
+	}
+
+	// Create a new user with validated data.
+	if err := db.CreateUser(user); err != nil {
+		// Return status 500 and create user process error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Delete password hash field from JSON view.
+	user.PasswordHash = ""
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"error": false,
+		"msg":   nil,
+		"user":  user,
 	})
 }

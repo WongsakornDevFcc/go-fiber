@@ -12,6 +12,18 @@ type UserQueries struct {
 	*sqlx.DB
 }
 
+func (q *UserQueries) GetUsers() ([]models.User, error) {
+	users := []models.User{}
+
+	query := `SELECT * FROM users`
+
+	if err := q.Select(&users, query); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 // GetUserByID query for getting one User by given ID.
 func (q *UserQueries) GetUserByID(id uuid.UUID) (models.User, error) {
 	// Define User variable.

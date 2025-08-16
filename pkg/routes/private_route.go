@@ -14,7 +14,7 @@ func PrivateRoutes(a *fiber.App) {
 
 	// Routes for GET method:
 	router.Get("/helloworld", middleware.JWTMiddleware, controller.HellowWorldController)
-	router.Get("/users", middleware.JWTMiddleware, controller.UserController)
+	router.Get("/users", middleware.JWTMiddleware, controller.GetUsers)
 
 	// Routes for POST method:
 

@@ -18,5 +18,6 @@ func PublicRoutes(a *fiber.App) {
 	// Routes for POST method:
 	router.Post("/authentication/signin", controller.LoginController)
 	router.Post("/authentication/refresh", controller.RefreshTokenController)
+	router.Post("/user/sign/up", controller.UserSignUp)
 
 }
