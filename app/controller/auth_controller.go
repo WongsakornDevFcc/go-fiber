@@ -23,40 +23,71 @@ type TokenRequest struct {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		models.Signin1				true	"User credentials"
+//	@Param			user	body		models.SignIn				true	"User credentials"
 //	@Success		200		{object}	map[string]string	"JWT token"
 //	@Failure		400		{string}	string				"Invalid request body"
 //	@Failure		401		{string}	string				"Invalid credentials"
 //	@Failure		500		{string}	string				"No username found"
 //	@Router			/api/v1/authentication/signin [post]
 func LoginController(c *fiber.Ctx) error {
-	c.Set("Content-Type", "application/json")
+	var signIn = &models.SignIn{}
 
-	var signIn = &models.Signin1{}
-	if err := json.Unmarshal(c.Body(), &signIn); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
-	}
-
-	if signIn.Username == "admin" && signIn.Password == "123456" {
-		tokenString, err := utils.CreateToken(signIn.Username, "admin")
-		refreshTokenString, err := utils.CreateRefreshToken(signIn.Username, "admin")
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString("No username found")
-		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"tokens":  tokenString,
-			"refresh": refreshTokenString,
-			"user": fiber.Map{
-				"username": signIn.Username,
-				"role":     "admin",
-			}})
-	} else {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   "Unauthorized",
-			"message": "Authentication failed. Invalid or missing credentials.",
-			"status":  fiber.StatusUnauthorized,
+	if err := c.BodyParser(signIn); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
 		})
 	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	foundedUser, err := db.GetUserByEmail(signIn.Email)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "user with the given email is not found",
+		})
+	}
+
+	compareUserPassword := utils.ComparePasswords(foundedUser.PasswordHash, signIn.Password)
+	if !compareUserPassword {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   "wrong user email address or password",
+		})
+	}
+
+	// if signIn.Username == "admin" && signIn.Password == "123456" {
+	tokenString, err := utils.CreateToken(signIn.Email, foundedUser.UserRole)
+	refreshTokenString, err := utils.CreateRefreshToken(signIn.Email, foundedUser.UserRole)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("No username found")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"error": false,
+		"msg":   nil,
+		"tokens": fiber.Map{
+			"access":  tokenString,
+			"refresh": refreshTokenString,
+		},
+		"user": fiber.Map{
+			"username": signIn.Email,
+			"role":     foundedUser.UserRole,
+		}})
+	// } else {
+	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	// 		"error":  true,
+	// 		"msg":    "Authentication failed. Invalid or missing credentials.",
+	// 		"status": fiber.StatusUnauthorized,
+	// 	})
+	// }
 }
 
 // ProtectedHandler is a handler for protected routes.
@@ -139,7 +170,7 @@ func RefreshTokenController(c *fiber.Ctx) error {
 //
 //	@Description	Create a new user.
 //	@Summary		create a new user
-//	@Tags			User
+//	@Tags			auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			body	body		models.SignUp	true	"Sign Up Body"

@@ -4,6 +4,18 @@ definitions:
       refresh:
         type: string
     type: object
+  models.SignIn:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      password:
+        maxLength: 255
+        type: string
+    required:
+    - email
+    - password
+    type: object
   models.SignUp:
     properties:
       email:
@@ -19,16 +31,6 @@ definitions:
     - email
     - password
     - user_role
-    type: object
-  models.Signin1:
-    properties:
-      password:
-        type: string
-      username:
-        type: string
-    required:
-    - password
-    - username
     type: object
   models.User:
     properties:
@@ -116,7 +118,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.Signin1'
+          $ref: '#/definitions/models.SignIn'
       produces:
       - application/json
       responses:
@@ -192,6 +194,21 @@ paths:
       summary: Show the test to server test.
       tags:
       - Test
+  /api/v1/user:
+    get:
+      consumes:
+      - '*/*'
+      description: get Users list of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user list
+      security:
+      - BearerAuth: []
+      summary: Show the Users list to server.
+      tags:
+      - User
   /api/v1/user/sign/up:
     post:
       consumes:
@@ -213,22 +230,7 @@ paths:
             $ref: '#/definitions/models.User'
       summary: create a new user
       tags:
-      - User
-  /api/v1/users:
-    get:
-      consumes:
-      - '*/*'
-      description: get Users list of server.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: user list
-      security:
-      - BearerAuth: []
-      summary: Show the Users list to server.
-      tags:
-      - Users
+      - auth
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

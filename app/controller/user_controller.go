@@ -10,12 +10,12 @@ import (
 //
 //	@Summary		Show the Users list to server.
 //	@Description	get Users list of server.
-//	@Tags			Users
+//	@Tags			User
 //	@Accept			*/*
 //	@Produce		json
 //	@Success		200	"user list"
 //	@Security		BearerAuth
-//	@Router			/api/v1/users [get]
+//	@Router			/api/v1/user [get]
 func GetUsers(c *fiber.Ctx) error {
 	db, err := database.OpenDBConnection()
 	if err != nil {

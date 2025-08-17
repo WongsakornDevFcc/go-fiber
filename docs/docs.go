@@ -98,7 +98,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Signin1"
+                            "$ref": "#/definitions/models.SignIn"
                         }
                     }
                 ],
@@ -217,6 +217,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/user": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "get Users list of server.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Show the Users list to server.",
+                "responses": {
+                    "200": {
+                        "description": "user list"
+                    }
+                }
+            }
+        },
         "/api/v1/user/sign/up": {
             "post": {
                 "description": "Create a new user.",
@@ -227,7 +252,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "auth"
                 ],
                 "summary": "create a new user",
                 "parameters": [
@@ -250,31 +275,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/api/v1/users": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "get Users list of server.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Show the Users list to server.",
-                "responses": {
-                    "200": {
-                        "description": "user list"
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -283,6 +283,23 @@ const docTemplate = `{
             "properties": {
                 "refresh": {
                     "type": "string"
+                }
+            }
+        },
+        "models.SignIn": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },
@@ -305,21 +322,6 @@ const docTemplate = `{
                 "user_role": {
                     "type": "string",
                     "maxLength": 25
-                }
-            }
-        },
-        "models.Signin1": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
