@@ -224,9 +224,9 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "get Users list of server.",
+                "description": "Get a paginated list of users from the server",
                 "consumes": [
-                    "*/*"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -234,12 +234,22 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Show the Users list to server.",
-                "responses": {
-                    "200": {
-                        "description": "user list"
+                "summary": "Show list of users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size (default 10)",
+                        "name": "limit",
+                        "in": "query"
                     }
-                }
+                ],
+                "responses": {}
             }
         },
         "/api/v1/user/sign/up": {

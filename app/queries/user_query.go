@@ -12,16 +12,22 @@ type UserQueries struct {
 	*sqlx.DB
 }
 
-func (q *UserQueries) GetUsers() ([]models.User, error) {
+func (q *UserQueries) GetUsers(limit, offset int) ([]models.User, int, error) {
 	users := []models.User{}
 
-	query := `SELECT * FROM users`
+	query := `SELECT * FROM users ORDER BY created_at LIMIT $1 OFFSET $2`
+	countQuery := `SELECT COUNT(*) FROM users`
 
-	if err := q.Select(&users, query); err != nil {
-		return nil, err
+	var total int
+	if err := q.Get(&total, countQuery); err != nil {
+		return nil, 0, err
 	}
 
-	return users, nil
+	if err := q.Select(&users, query, limit, offset); err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
 }
 
 // GetUserByID query for getting one User by given ID.
