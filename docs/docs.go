@@ -125,7 +125,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "No username found",
+                        "description": "No email found",
                         "schema": {
                             "type": "string"
                         }

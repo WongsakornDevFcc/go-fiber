@@ -16,13 +16,13 @@ var (
 	hourCount, _    = strconv.Atoi(os.Getenv("JWT_REFRESH_KEY_EXPIRE_HOURS_COUNT"))
 )
 
-func CreateToken(username string, role string) (string, error) {
+func CreateToken(email string, role string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"username": username,
-			"role":     role,
-			"exp":      time.Now().Add(time.Minute * time.Duration(minutesCount)).Unix(), //test for 15s
+			"email": email,
+			"role":  role,
+			"exp":   time.Now().Add(time.Minute * time.Duration(minutesCount)).Unix(), //test for 15s
 		})
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
@@ -31,13 +31,13 @@ func CreateToken(username string, role string) (string, error) {
 	return tokenString, nil
 }
 
-func CreateRefreshToken(username string, role string) (string, error) {
+func CreateRefreshToken(email string, role string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"username": username,
-			"role":     role,
-			"exp":      time.Now().Add(time.Hour * time.Duration(hourCount)).Unix(),
+			"email": email,
+			"role":  role,
+			"exp":   time.Now().Add(time.Hour * time.Duration(hourCount)).Unix(),
 		})
 	tokenString, err := token.SignedString(refreshKey)
 	if err != nil {
@@ -78,9 +78,9 @@ func VerifyRefreshToken(refreshTokenString string) (string, string, error) {
 		return "", "", fmt.Errorf("invalid token claims")
 	}
 
-	username, ok := claims["username"].(string)
+	email, ok := claims["email"].(string)
 	if !ok {
-		return "", "", fmt.Errorf("missing username in token claims")
+		return "", "", fmt.Errorf("missing email in token claims")
 	}
 
 	role, ok := claims["role"].(string)
@@ -88,5 +88,5 @@ func VerifyRefreshToken(refreshTokenString string) (string, string, error) {
 		role = "user"
 	}
 
-	return username, role, nil
+	return email, role, nil
 }

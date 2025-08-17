@@ -8,6 +8,7 @@ import (
 	"go-fiber/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 
 	_ "github.com/joho/godotenv/autoload" // load .env file automatically
 )
@@ -33,8 +34,10 @@ import (
 func main() {
 
 	config := configs.FiberConfig()
+	corsConfig := configs.CorsConfig()
 
 	app := fiber.New(config)
+	app.Use(cors.New(corsConfig))
 
 	middleware.FiberMiddleware(app)
 

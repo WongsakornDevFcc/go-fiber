@@ -27,7 +27,7 @@ type TokenRequest struct {
 //	@Success		200		{object}	map[string]string	"JWT token"
 //	@Failure		400		{string}	string				"Invalid request body"
 //	@Failure		401		{string}	string				"Invalid credentials"
-//	@Failure		500		{string}	string				"No username found"
+//	@Failure		500		{string}	string				"No email found"
 //	@Router			/api/v1/authentication/signin [post]
 func LoginController(c *fiber.Ctx) error {
 	var signIn = &models.SignIn{}
@@ -63,11 +63,10 @@ func LoginController(c *fiber.Ctx) error {
 		})
 	}
 
-	// if signIn.Username == "admin" && signIn.Password == "123456" {
 	tokenString, err := utils.CreateToken(signIn.Email, foundedUser.UserRole)
 	refreshTokenString, err := utils.CreateRefreshToken(signIn.Email, foundedUser.UserRole)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("No username found")
+		return c.Status(fiber.StatusInternalServerError).SendString("No email found")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -78,16 +77,10 @@ func LoginController(c *fiber.Ctx) error {
 			"refresh": refreshTokenString,
 		},
 		"user": fiber.Map{
-			"username": signIn.Email,
-			"role":     foundedUser.UserRole,
+			"email": signIn.Email,
+			"role":  foundedUser.UserRole,
 		}})
-	// } else {
-	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-	// 		"error":  true,
-	// 		"msg":    "Authentication failed. Invalid or missing credentials.",
-	// 		"status": fiber.StatusUnauthorized,
-	// 	})
-	// }
+
 }
 
 // ProtectedHandler is a handler for protected routes.
@@ -144,24 +137,21 @@ func RefreshTokenController(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
 	}
 
-	username, role, err := utils.VerifyRefreshToken(u.Refresh)
+	email, role, err := utils.VerifyRefreshToken(u.Refresh)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).SendString("Invalid refresh token")
 	}
 
-	newToken, err := utils.CreateToken(username, role)
-	newRefreshToken := u.Refresh
+	newToken, err := utils.CreateToken(email, role)
+	// newRefreshToken := u.Refresh
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to create new token")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"tokens":  newToken,
-		"refresh": newRefreshToken,
-		"user": fiber.Map{
-			"username": username,
-			"role":     role,
+		"tokens": fiber.Map{
+			"access": newToken,
 		},
 	})
 }
