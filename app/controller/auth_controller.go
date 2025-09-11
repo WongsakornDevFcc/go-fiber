@@ -34,32 +34,32 @@ func LoginController(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(signIn); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
+			"error":   true,
+			"message": err.Error(),
 		})
 	}
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
+			"error":   true,
+			"message": err.Error(),
 		})
 	}
 
 	foundedUser, err := db.GetUserByEmail(signIn.Email)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": true,
-			"msg":   "user with the given email is not found",
+			"error":   true,
+			"message": "user with the given email is not found",
 		})
 	}
 
 	compareUserPassword := utils.ComparePasswords(foundedUser.PasswordHash, signIn.Password)
 	if !compareUserPassword {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   "wrong user email address or password",
+			"error":   true,
+			"message": "wrong user email address or password",
 		})
 	}
 
@@ -70,8 +70,8 @@ func LoginController(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"error": false,
-		"msg":   nil,
+		"error":   false,
+		"message": nil,
 		"tokens": fiber.Map{
 			"access":  tokenString,
 			"refresh": refreshTokenString,
@@ -171,8 +171,8 @@ func UserSignUp(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(signUp); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
+			"error":   true,
+			"message": err.Error(),
 		})
 	}
 
@@ -182,8 +182,8 @@ func UserSignUp(c *fiber.Ctx) error {
 	if err := validate.Struct(signUp); err != nil {
 		// Return, if some fields are not valid.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   utils.ValidatorErrors(err),
+			"error":   true,
+			"message": utils.ValidatorErrors(err),
 		})
 	}
 
@@ -192,8 +192,8 @@ func UserSignUp(c *fiber.Ctx) error {
 	if err != nil {
 		// Return status 500 and database connection error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
+			"error":   true,
+			"message": err.Error(),
 		})
 	}
 
@@ -202,8 +202,8 @@ func UserSignUp(c *fiber.Ctx) error {
 	if err != nil {
 		// Return status 400 and error message.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
+			"error":   true,
+			"message": err.Error(),
 		})
 	}
 
@@ -222,8 +222,8 @@ func UserSignUp(c *fiber.Ctx) error {
 	if err := validate.Struct(user); err != nil {
 		// Return, if some fields are not valid.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   utils.ValidatorErrors(err),
+			"error":   true,
+			"message": utils.ValidatorErrors(err),
 		})
 	}
 
@@ -231,8 +231,8 @@ func UserSignUp(c *fiber.Ctx) error {
 	if err := db.CreateUser(user); err != nil {
 		// Return status 500 and create user process error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
+			"error":   true,
+			"message": err.Error(),
 		})
 	}
 
@@ -241,8 +241,8 @@ func UserSignUp(c *fiber.Ctx) error {
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error": false,
-		"msg":   nil,
-		"user":  user,
+		"error":   false,
+		"message": nil,
+		"user":    user,
 	})
 }

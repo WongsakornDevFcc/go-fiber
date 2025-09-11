@@ -23,8 +23,8 @@ func GetUsers(c *fiber.Ctx) error {
 	if err != nil {
 		// Return status 500 and database connection error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
+			"error":   true,
+			"message": err.Error(),
 		})
 	}
 
@@ -34,10 +34,10 @@ func GetUsers(c *fiber.Ctx) error {
 
 	if page < 1 || limit < 1 {
 		return c.Status(fiber.StatusBadRequest).JSON((fiber.Map{
-			"error": true,
-			"msg":   "page or limit must have value",
-			"count": 0,
-			"user":  nil,
+			"error":   true,
+			"message": "page or limit must have value",
+			"count":   0,
+			"user":    nil,
 		}))
 	}
 
@@ -46,10 +46,10 @@ func GetUsers(c *fiber.Ctx) error {
 	if err != nil {
 		// Return, if users not found.
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": true,
-			"msg":   "user were not found",
-			"count": 0,
-			"users": nil,
+			"error":   true,
+			"message": "user were not found",
+			"count":   0,
+			"users":   nil,
 		})
 	}
 
@@ -57,10 +57,10 @@ func GetUsers(c *fiber.Ctx) error {
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error": false,
-		"msg":   nil,
-		"page":  page,
-		"limit": limit,
+		"error":   false,
+		"message": nil,
+		"page":    page,
+		"limit":   limit,
 		// "count":      len(users),
 		"total":      total,
 		"totalPages": totalPages,

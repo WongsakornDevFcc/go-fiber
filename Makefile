@@ -34,3 +34,6 @@ migrate.down:
 
 migrate.force:
 	migrate -path $(MIGRATIONS_FOLDER) -database "$(DATABASE_URL)" force $(version)
+
+
+# migrate -path ./platform/migrations -database "postgres://postgres:password@localhost:5432/fiber-base?sslmode=disable" up
