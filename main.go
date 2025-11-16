@@ -39,6 +39,10 @@ func main() {
 	app := fiber.New(config)
 	app.Use(cors.New(corsConfig))
 
+	app.Options("/*", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusNoContent)
+	})
+
 	middleware.FiberMiddleware(app)
 
 	routes.SwaggerRoute(app)

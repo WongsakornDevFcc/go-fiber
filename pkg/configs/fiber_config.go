@@ -27,7 +27,7 @@ func CorsConfig() cors.Config {
 	return cors.Config{
 		AllowOrigins:     os.Getenv("ALLOWED_ORIGINS"), // frontend origin
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, Locale",
 		AllowCredentials: true,
 	}
 }

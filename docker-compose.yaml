@@ -14,6 +14,14 @@ services:
       - "5001:5001"
     volumes:
       - ./:/app
+    environment:
+      DB_TYPE: pgx
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: fiber-base
+      DB_SSL_MODE: disable
 
   postgres:
     container_name: postgres

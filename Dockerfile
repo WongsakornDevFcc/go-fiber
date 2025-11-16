@@ -6,8 +6,10 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN go install github.com/air-verse/air@latest
 
 COPY go.mod go.sum ./
-
 RUN go mod download
 
+COPY . .
+
+RUN mkdir -p /app/tmp
+
 CMD ["air", "-c", ".air.toml"]
-# CMD ["air"]
