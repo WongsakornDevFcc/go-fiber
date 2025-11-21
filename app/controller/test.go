@@ -31,6 +31,8 @@ type TestFastResponse struct {
 	Count int      `json:"count" example:"100"`
 }
 
+const testFastCount = 100
+
 // TestFastController
 //
 //	@Summary		Generate list of testfast names.
@@ -41,13 +43,13 @@ type TestFastResponse struct {
 //	@Success		200	{object}	controller.TestFastResponse
 //	@Router			/api/v1/testfast [get]
 func TestFastController(c *fiber.Ctx) error {
-	names := make([]string, 100)
-	for i := 0; i < 100; i++ {
+	names := make([]string, testFastCount)
+	for i := 0; i < testFastCount; i++ {
 		names[i] = fmt.Sprintf("testfast%d", i+1)
 	}
 
-	return c.JSON(fiber.Map{
-		"names": names,
-		"count": 100,
+	return c.JSON(TestFastResponse{
+		Names: names,
+		Count: len(names),
 	})
 }
