@@ -194,6 +194,23 @@ paths:
       summary: Show the test to server test.
       tags:
       - Test
+  /api/v1/testfast:
+    get:
+      consumes:
+      - '*/*'
+      description: Generate list of names from testfast1 to testfast100.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Generate list of testfast names.
+      tags:
+      - Test
   /api/v1/user:
     get:
       consumes:

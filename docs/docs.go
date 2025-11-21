@@ -217,6 +217,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/testfast": {
+            "get": {
+                "description": "Generate list of names from testfast1 to testfast100.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "Generate list of testfast names.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user": {
             "get": {
                 "security": [

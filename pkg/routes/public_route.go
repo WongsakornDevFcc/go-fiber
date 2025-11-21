@@ -13,6 +13,7 @@ func PublicRoutes(a *fiber.App) {
 
 	// Routes for GET method:
 	router.Get("/test", controller.TestController)
+	router.Get("/testfast", controller.TestFastController)
 	router.Get("/protected", controller.ProtectedHandler)
 
 	// Routes for POST method:
