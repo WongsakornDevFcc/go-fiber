@@ -1,4 +1,18 @@
 definitions:
+  controller.TestFastResponse:
+    properties:
+      count:
+        example: 100
+        type: integer
+      names:
+        example:
+        - testfast1
+        - testfast2
+        - '...'
+        items:
+          type: string
+        type: array
+    type: object
   controller.TokenRequest:
     properties:
       refresh:
@@ -205,9 +219,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              type: string
-            type: array
+            $ref: '#/definitions/controller.TestFastResponse'
       summary: Generate list of testfast names.
       tags:
       - Test

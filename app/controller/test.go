@@ -25,6 +25,12 @@ func TestController(c *fiber.Ctx) error {
 	})
 }
 
+// TestFastResponse represents the response structure for TestFastController
+type TestFastResponse struct {
+	Names []string `json:"names" example:"testfast1,testfast2,..."`
+	Count int      `json:"count" example:"100"`
+}
+
 // TestFastController
 //
 //	@Summary		Generate list of testfast names.
@@ -32,7 +38,7 @@ func TestController(c *fiber.Ctx) error {
 //	@Tags			Test
 //	@Accept			*/*
 //	@Produce		json
-//	@Success		200	{array}	string
+//	@Success		200	{object}	controller.TestFastResponse
 //	@Router			/api/v1/testfast [get]
 func TestFastController(c *fiber.Ctx) error {
 	names := make([]string, 100)

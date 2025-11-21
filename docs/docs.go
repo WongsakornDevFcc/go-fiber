@@ -234,10 +234,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controller.TestFastResponse"
                         }
                     }
                 }
@@ -314,6 +311,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controller.TestFastResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "testfast1",
+                        "testfast2",
+                        "..."
+                    ]
+                }
+            }
+        },
         "controller.TokenRequest": {
             "type": "object",
             "properties": {
