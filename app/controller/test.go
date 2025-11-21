@@ -50,6 +50,6 @@ func TestFastController(c *fiber.Ctx) error {
 
 	return c.JSON(TestFastResponse{
 		Names: names,
-		Count: len(names),
+		Count: testFastCount,
 	})
 }
