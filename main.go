@@ -6,6 +6,7 @@ import (
 	"go-fiber/pkg/configs"
 	"go-fiber/pkg/routes"
 	"go-fiber/pkg/utils"
+	"go-fiber/platform/cache"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -32,6 +33,10 @@ import (
 //	@description				Type "Bearer" followed by a space and JWT token.
 
 func main() {
+	rdb, err := cache.RedisConnection()
+	if err != nil {
+		panic(err)
+	}
 
 	config := configs.FiberConfig()
 	corsConfig := configs.CorsConfig()
@@ -46,8 +51,8 @@ func main() {
 	middleware.FiberMiddleware(app)
 
 	routes.SwaggerRoute(app)
-	routes.PublicRoutes(app)
-	routes.PrivateRoutes(app)
+	routes.PublicRoutes(app, rdb)
+	routes.PrivateRoutes(app, rdb)
 	routes.NotFoundRoute(app)
 
 	utils.StartServer(app)

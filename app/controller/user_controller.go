@@ -20,6 +20,8 @@ import (
 //	@Router			/api/v1/user [get]
 func GetUsers(c *fiber.Ctx) error {
 	db, err := database.OpenDBConnection()
+	// user := c.Locals("jwt")
+
 	if err != nil {
 		// Return status 500 and database connection error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

@@ -1,29 +1,33 @@
 package middleware
 
 import (
-	"go-fiber/pkg/utils"
-	"strings"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
+
+	jwtMiddleware "github.com/gofiber/contrib/jwt"
 )
 
-func JWTMiddleware(c *fiber.Ctx) error {
-	authHeader := c.Get("Authorization")
-	if authHeader == "" {
-		return c.Status(fiber.StatusUnauthorized).SendString("Missing authorization header")
-	}
-	const bearerPrefix = "Bearer "
-	if len(authHeader) <= len(bearerPrefix) || authHeader[:len(bearerPrefix)] != bearerPrefix {
-		return c.Status(fiber.StatusUnauthorized).SendString("Invalid authorization header format")
+func JWTProtected() func(*fiber.Ctx) error {
+	config := jwtMiddleware.Config{
+		SigningKey:   jwtMiddleware.SigningKey{Key: []byte(os.Getenv("JWT_SECRET_KEY"))},
+		ContextKey:   "jwt",
+		ErrorHandler: jwtError,
 	}
 
-	tokenString := strings.TrimSpace(authHeader[len(bearerPrefix):])
-	if err := utils.VerifyToken(tokenString); err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   "Unauthorized",
-			"message": "Invalid token",
-			"status":  fiber.StatusUnauthorized,
+	return jwtMiddleware.New(config)
+}
+
+func jwtError(c *fiber.Ctx, err error) error {
+	if err.Error() == "Missing or malformed JWT" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
 		})
 	}
-	return c.Next()
+
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		"error": true,
+		"msg":   err.Error(),
+	})
 }
